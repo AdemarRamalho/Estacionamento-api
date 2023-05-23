@@ -34,7 +34,13 @@ public class CondutorService {
 
 
     public List<Condutor> listaCompleta() {
-        return this.condutorRepository.findAll();
+        if (condutorRepository.findAll().isEmpty()) {
+            throw new RuntimeException(", banco de dados não possui condutores cadastrados!");
+
+        } else {
+            return condutorRepository.findAll();
+        }
+
     }
 
     public Condutor findById(Long id) {

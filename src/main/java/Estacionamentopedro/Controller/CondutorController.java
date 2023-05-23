@@ -9,9 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-/*
-    @Author Cristovaof
- */
+
 @RestController
 @RequestMapping(value = "api/condutores")
 public class CondutorController {
@@ -32,9 +30,9 @@ public class CondutorController {
     @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){
         try{
-            return ResponseEntity.ok(this.condutorService.listaCompleta());
+            return ResponseEntity.ok(condutorService.listaCompleta());
         }catch(RuntimeException e){
-            return ResponseEntity.badRequest().body("Lista de condutor indisponivel!");
+            return ResponseEntity.badRequest().body("Error " + e.getMessage());
         }
     }
 
@@ -46,7 +44,7 @@ public class CondutorController {
             return ResponseEntity.badRequest().body("Nenhum condutor ativo no momento!");
         }
     }
-    @PostMapping//Cadastrar ok VALIDADO!
+    @PostMapping
     public ResponseEntity<?> cadastrar(@Validated @RequestBody final Condutor condutor){
         try {
             return ResponseEntity.ok(condutorService.cadastrar(condutor));

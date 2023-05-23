@@ -33,7 +33,12 @@ public class ModeloService {
 
 
     public List<Modelo> listaCompleta() {
-        return this.modeloRepository.findAll();
+        if (modeloRepository.findAll().isEmpty()) {
+            throw new RuntimeException(", banco de dados não possui Modelos cadastrados!");
+
+        } else {
+            return modeloRepository.findAll();
+        }
     }
 
     public Modelo findById(Long id) {
