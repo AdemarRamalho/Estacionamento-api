@@ -20,6 +20,6 @@ public interface CondutorRepository extends JpaRepository<Condutor,Long> {
     @Query("UPDATE Condutor condutor SET condutor.ativo = true WHERE condutor.id = :idCondutor")
     public void ativar(@Param("idCondutor") Long id);
 
-    @Query("SELECT Condutor FROM Condutor condutor WHERE condutor.ativo = true")
+    @Query("SELECT condutor FROM Condutor condutor WHERE condutor.ativo = true")
     public List<Condutor> CondutoresAtivos();
 }

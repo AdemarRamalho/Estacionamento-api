@@ -10,8 +10,6 @@ public class EstacionamentoPedroApplication {
 	public static void main(String[] args) {
 
 		SpringApplication.run(EstacionamentoPedroApplication.class, args);
-		MovimentacaoService movimentacao = new MovimentacaoService();
-		movimentacao.ControleMovimentacaoEntrada();
 	}
 
 }

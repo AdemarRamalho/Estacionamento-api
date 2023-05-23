@@ -2,53 +2,74 @@ package Estacionamentopedro.Controller;
 
 
 import Estacionamentopedro.Entity.Condutor;
+import Estacionamentopedro.Entity.Marca;
 import Estacionamentopedro.Service.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+/*
+    @Author Cristovaof
+ */
 @RestController
 @RequestMapping(value = "api/condutores")
-public class                                                                                                                                                                                                        CondutorController {
+public class CondutorController {
 
     @Autowired
     private CondutorService condutorService;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") final Long id){
-        final Condutor condutor = this.condutorService.findById(id);
-        return condutor == null
-                ? ResponseEntity.badRequest().body("Nenhum valor encontrado.")
-                : ResponseEntity.ok(condutor);
+        try{
+            this.condutorService.findById(id);
+            return ResponseEntity.ok().body(this.condutorService.findById(id));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Id não encontrado!");
+        }
     }
 
     @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){
-        return ResponseEntity.ok(this.condutorService.listaCompleta());
-    }
-
-    @GetMapping("/lista/ativos")
-    public ResponseEntity<?> listaAtivos(){
-        return ResponseEntity.ok(this.condutorService.listaCondutoresAtivos());
-    }
-
-    @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Condutor condutor){
         try{
-            this.condutorService.cadastrar(condutor);
-            return ResponseEntity.ok().body("Sucesso!, Condutor Cadastrado!");
+            return ResponseEntity.ok(this.condutorService.listaCompleta());
         }catch(RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Lista de condutor indisponivel!");
         }
     }
 
-    @PutMapping("/{idCondutor}")
-    public ResponseEntity<?> atualizar(
-            @PathVariable Long idCondutor,
-            @RequestBody Condutor condutor
-    ) {
-            this.condutorService.atualizar(idCondutor, condutor);
-            return ResponseEntity.ok().body("Condutor atualizado com sucesso!");
+    @GetMapping("/lista/ativos")//
+    public ResponseEntity<?> listaAtivos(){
+        try{
+            return ResponseEntity.ok(this.condutorService.listaCondutoresAtivos());
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Nenhum condutor ativo no momento!");
+        }
+    }
+    @PostMapping//Cadastrar ok VALIDADO!
+    public ResponseEntity<?> cadastrar(@Validated @RequestBody final Condutor condutor){
+        try {
+            return ResponseEntity.ok(condutorService.cadastrar(condutor));
+        }
+        catch (RuntimeException e){
+            return ResponseEntity.internalServerError().body("Condutor Já Cadastrada!");
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<?> editar(@RequestParam("id") final Long id,
+                                    @Validated @RequestBody final Condutor condutor){
+        Condutor condutorBanco = condutorService.findById(id);
+        condutorBanco.setNome(condutor.getNome());
+        condutorBanco.setTelefone(condutor.getTelefone());
+        condutorBanco.setCpf(condutor.getCpf());
+
+        try {
+            this.condutorService.atualizar(condutorBanco);
+            return ResponseEntity.ok("Condutor alterado com sucesso!");
+        } catch (RuntimeException e){
+            return ResponseEntity.internalServerError().body("Erro ao alterar condutor!");
+        }
     }
 
 
@@ -56,8 +77,12 @@ public class                                                                    
     public ResponseEntity<?> desativar(
             @PathVariable Long idCondutor
     ){
+        try{
             this.condutorService.desativar(idCondutor);
             return ResponseEntity.ok().body("Condutor desativado com sucesso!");
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Condutor não encontrado!");
+        }
     }
 
     @PutMapping("/ativar/{idCondutor}")
@@ -66,9 +91,9 @@ public class                                                                    
     ){
         try{
             this.condutorService.ativar(idCondutor);
-            return ResponseEntity.ok().body("Marca ativada com sucesso!");
+            return ResponseEntity.ok().body("Condutor ativado com sucesso!");
         }catch (RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Nenhum condutor cadastrado!");
         }
     }
 }

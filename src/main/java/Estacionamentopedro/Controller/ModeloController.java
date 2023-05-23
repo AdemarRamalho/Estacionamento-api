@@ -1,11 +1,13 @@
 package Estacionamentopedro.Controller;
 
 
+import Estacionamentopedro.Entity.Marca;
 import Estacionamentopedro.Entity.Modelo;
 import Estacionamentopedro.Service.ModeloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,46 +18,55 @@ public class ModeloController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") final Long id){
-        final Modelo modelo = this.modeloService.findById(id);
-        return modelo == null
-                ? ResponseEntity.badRequest().body("Nenhum valor encontrado.")
-                : ResponseEntity.ok(modelo);
+        try{
+            this.modeloService.findById(id);
+            return ResponseEntity.ok().body(this.modeloService.findById(id));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Id não encontrado!");
+        }
     }
 
     @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){
-        return ResponseEntity.ok(this.modeloService.listaCompleta());
+        try{
+            return ResponseEntity.ok(this.modeloService.listaCompleta());
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Lista indisponivel no momento!");
+        }
     }
 
     @GetMapping("/lista/ativos")
     public ResponseEntity<?> listaAtivos(){
-        return ResponseEntity.ok(this.modeloService.listaModelosAtivos());
+        try{
+            return ResponseEntity.ok(this.modeloService.listaModelosAtivos());
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Nenhum modelo ativo no momento!");
+        }
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Modelo modelo){
+    public ResponseEntity<?> cadastrar(@RequestBody @Validated final Modelo modelo){
         try {
             return ResponseEntity.ok(modeloService.cadastrar(modelo));
         }
-        catch (DataIntegrityViolationException e){
-            return ResponseEntity.internalServerError()
-                    .body("Error: " + e.getCause().getCause().getMessage());
+        catch (RuntimeException e){
+            return ResponseEntity.internalServerError().body("Erro Modelo ja cadastrado!");
         }
     }
 
-    @PutMapping("/{idModelo}")
-    public ResponseEntity<?> atualizar(
-            @PathVariable Long idModelo,
-            @RequestBody Modelo modelo
-    ) {
+    @PutMapping
+    public ResponseEntity<?> editar(@RequestParam("id") final Long id,
+                                    @Validated @RequestBody final Modelo modelo){
+        Modelo modeloBanco = modeloService.findById(id);
+        modeloBanco.setNome(modelo.getNome());
+
         try {
-            this.modeloService.atualizar(idModelo, modelo);
-            return ResponseEntity.ok().body("Modelo atualizado com sucesso!");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            this.modeloService.atualizar(modeloBanco);
+            return ResponseEntity.ok("Modelo alterado com sucesso!");
+        } catch (RuntimeException e){
+            return ResponseEntity.internalServerError().body("Erro ao alterar modelo!");
         }
     }
-
 
     @PutMapping("/desativar/{idModelo}")
     public ResponseEntity<?> desativar(
@@ -65,7 +76,7 @@ public class ModeloController {
             this.modeloService.desativar(idModelo);
             return ResponseEntity.ok().body("Modelo desativado com sucesso!");
         }catch (RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Modelo não encontrado!");
         }
     }
     @PutMapping("/ativar/{idModelo}")
@@ -76,7 +87,7 @@ public class ModeloController {
             this.modeloService.ativar(idModelo);
             return ResponseEntity.ok().body("Modelo ativado com sucesso!");
         }catch (RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Modelo não encontrado!");
         }
     }
 

@@ -20,7 +20,7 @@ public interface ModeloRepository extends JpaRepository<Modelo,Long> {
     @Query("UPDATE Modelo modelo SET modelo.ativo = true WHERE modelo.id = :idModelo")
     public void ativar(@Param("idModelo") Long id);
 
-    @Query("SELECT Modelo FROM Modelo modelo WHERE modelo.ativo = true")
+    @Query("SELECT modelo FROM Modelo modelo WHERE modelo.ativo = true")
     public List<Modelo> modelosAtivos();
 
 

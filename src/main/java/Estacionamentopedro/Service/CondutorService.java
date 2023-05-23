@@ -2,15 +2,18 @@ package Estacionamentopedro.Service;
 
 import Estacionamentopedro.Components.ValidaCpf;
 import Estacionamentopedro.Components.ValidarTelefone;
-import Estacionamentopedro.Repository.CondutorRepository;
-import Estacionamentopedro.Service.Exceptions.EntityNotFoundException;
 import Estacionamentopedro.Entity.Condutor;
+import Estacionamentopedro.Entity.Marca;
+import Estacionamentopedro.Repository.CondutorRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+
 @NoArgsConstructor
 @Service
 public class CondutorService {
@@ -20,7 +23,7 @@ public class CondutorService {
     @Transactional
     public Condutor cadastrar(Condutor condutor) {
         if(condutor.getNome().trim().isBlank() || ValidaCpf.isCPF(condutor.getCpf()) == false) {
-                throw new RuntimeException("Cpf invalido: " + condutor.getCpf());
+            throw new RuntimeException("Cpf invalido: " + condutor.getCpf());
         }else if(ValidarTelefone.telefoneValido(condutor.getTelefone()) == false){
             throw new RuntimeException("Telefone invalido: " + condutor.getTelefone());
         }
@@ -35,15 +38,15 @@ public class CondutorService {
     }
 
     public Condutor findById(Long id) {
-
-        return this.condutorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("id não encontrado: "+id));
+        Optional<Condutor> condutor = this.condutorRepository.findById(id);
+        return condutor.orElseThrow(() -> new RuntimeException("Condutor não encontrado! Id: " + id));
     }
     @Transactional
-    public void atualizar(Long id, Condutor condutor) {
-        if(id == condutor.getId()) {
+    public void atualizar(Condutor condutor) {
+        try{
             this.condutorRepository.save(condutor);
-        }else{
-            throw new EntityNotFoundException("id não encontrado: "+id);
+        }catch (RuntimeException e){
+            throw  new RuntimeException("Erro Condutor não existe!");
         }
     }
 

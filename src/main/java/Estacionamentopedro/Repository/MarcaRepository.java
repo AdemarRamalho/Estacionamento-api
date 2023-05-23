@@ -20,7 +20,7 @@ public interface MarcaRepository extends JpaRepository<Marca,Long> {
     @Query("UPDATE Marca marca SET marca.ativo = true WHERE marca.id = :idMarca")
     public void ativar(@Param("idMarca") Long id);
 
-    @Query("SELECT Marca FROM Marca marca WHERE marca.ativo = true")
+    @Query("SELECT marca FROM Marca marca WHERE marca.ativo = true")
     public List<Marca> MarcasAtivas();
 
 }

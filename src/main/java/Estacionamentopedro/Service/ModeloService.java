@@ -1,13 +1,16 @@
 package Estacionamentopedro.Service;
 
-import Estacionamentopedro.Repository.ModeloRepository;
+import Estacionamentopedro.Entity.Marca;
 import Estacionamentopedro.Entity.Modelo;
+import Estacionamentopedro.Repository.ModeloRepository;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @NoArgsConstructor
@@ -18,7 +21,14 @@ public class ModeloService {
 
     @Transactional
     public Modelo cadastrar(Modelo modelo) {
-        return this.modeloRepository.save(modelo);
+        if(modelo.getNome().trim().isEmpty()){
+            throw  new RuntimeException("Erro modelo Nulo!");
+        }if(modelo.getNome().length() < 3){
+            throw new DataIntegrityViolationException("Minimo de 3 Caracteres para o modelo e/ou maximo de 50!");
+        }
+        else{
+            return this.modeloRepository.save(modelo);
+        }
     }
 
 
@@ -27,15 +37,13 @@ public class ModeloService {
     }
 
     public Modelo findById(Long id) {
-        return this.modeloRepository.findById(id).orElse(new Modelo());
+        Optional<Modelo> modelo = this.modeloRepository.findById(id);
+        return modelo.orElseThrow(() -> new RuntimeException("Modelo não encontrado! Id: " + id));
     }
+
     @Transactional
-    public void atualizar(Long id, Modelo modelo) {
-        if(id == modelo.getId()) {
-            this.modeloRepository.save(modelo);
-        } else {
-            throw new RuntimeException();
-        }
+    public void atualizar(final Modelo modelo) {
+        this.modeloRepository.save(modelo);
     }
 
     @Transactional
@@ -45,13 +53,15 @@ public class ModeloService {
             this.modeloRepository.desativar(id);
         }
         else {
-            throw new RuntimeException();
+            throw new RuntimeException("Modelo nao encontrado!");
         }
     }
 
     public List<Modelo> listaModelosAtivos(){
         return this.modeloRepository.modelosAtivos();
     }
+
+
 
     @Transactional
     public void ativar(Long id){
@@ -60,7 +70,7 @@ public class ModeloService {
             this.modeloRepository.ativar(id);
         }
         else {
-            throw new RuntimeException();
+            throw new RuntimeException("Modelo  nao encontrado!");
         }
     }
 }

@@ -1,10 +1,8 @@
 package Estacionamentopedro.Controller;
 
+import Estacionamentopedro.Configuracao.ExceptionHandlerAdvice;
 import Estacionamentopedro.Entity.Marca;
 import Estacionamentopedro.Service.MarcaService;
-import br.com.uniamerica.Estacionamentopedro.configuracao.ExceptionHandlerAdvice;
-import br.com.uniamerica.Estacionamentopedro.entity.Marca;
-import br.com.uniamerica.Estacionamentopedro.service.MarcaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.crossstore.ChangeSetPersister;

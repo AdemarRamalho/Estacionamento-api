@@ -1,7 +1,9 @@
 package Estacionamentopedro.Entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,35 +30,38 @@ public class Configuracao extends AbstractEntity{
     private BigDecimal valorMinutoMulta;
     @Getter
     @Column(name = "inicio_expediente")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalTime inicioExpediente;
     @Getter
     @Column(name = "fim_expediente")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalTime fimExpediente;
     @Getter
     @Column(name = "tempo_para_desconto")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalTime tempoParaDesconto;
     @Getter
     @Column(name = "tempo_de_desconto")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalTime tempoDeDesconto;
 
     @Getter
-    @Setter
     @Column(name = "gerar_desconto")
     private boolean gerarDesconto;
 
     @Getter
     @Setter
     @Column(name = "vagas_moto")
-    private int vagasMoto;
+    private Integer vagasMoto;
 
     @Getter
     @Setter
     @Column(name = "vagas_carro")
-    private int vagasCarro;
+    private Integer vagasCarro;
 
     @Getter
     @Setter
     @Column(name = "vagas_van")
-    private int vagasVan;
+    private Integer vagasVan;
 
 }

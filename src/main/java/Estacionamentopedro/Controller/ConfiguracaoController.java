@@ -1,10 +1,10 @@
-package br.com.uniamerica.Estacionamentopedro.controller;
+package Estacionamentopedro.Controller;
 
 import Estacionamentopedro.Entity.Configuracao;
 import Estacionamentopedro.Service.ConfiguracaoService;
-import br.com.uniamerica.Estacionamentopedro.entity.Configuracao;
-import br.com.uniamerica.Estacionamentopedro.entity.Veiculo;
-import br.com.uniamerica.Estacionamentopedro.service.ConfiguracaoService;
+import Estacionamentopedro.Entity.Configuracao;
+import Estacionamentopedro.Entity.Veiculo;
+import Estacionamentopedro.Service.ConfiguracaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;

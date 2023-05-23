@@ -1,10 +1,12 @@
 package Estacionamentopedro.Controller;
 
+import Estacionamentopedro.Entity.Marca;
 import Estacionamentopedro.Entity.Veiculo;
 import Estacionamentopedro.Service.VeiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,46 +18,59 @@ public class VeiculoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") final Long id){
-        final Veiculo veiculo = this.veiculoService.findById(id);
-        return veiculo == null
-                ? ResponseEntity.badRequest().body("Nenhum valor encontrado.")
-                : ResponseEntity.ok(veiculo);
+        try{
+            this.veiculoService.findById(id);
+            return ResponseEntity.ok().body(this.veiculoService.findById(id));
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Id não encontrado!");
+        }
     }
-
     @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){
-        return ResponseEntity.ok(this.veiculoService.listaCompleta());
+        try{
+            return ResponseEntity.ok(this.veiculoService.listaCompleta());
+        }catch(RuntimeException e){
+            return ResponseEntity.badRequest().body("Lista de veiculos indisponivel!");
+        }
     }
 
     @GetMapping("/lista/ativos")
-    public ResponseEntity<?> listaAtivos(){
-        return ResponseEntity.ok(this.veiculoService.listaVeiculosAtivos());
+    public ResponseEntity<?> listaAtivos() {
+        try {
+            return ResponseEntity.ok(this.veiculoService.listaVeiculosAtivos());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Nenhum veiculo ativo no momento!");
+        }
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Veiculo veiculo){
+    public ResponseEntity<?> cadastrar(@RequestBody @Validated final Veiculo veiculo){
         try {
-            return ResponseEntity.ok(veiculoService.cadastrar(veiculo));
+            this.veiculoService.cadastrar(veiculo);
+            return ResponseEntity.ok().body("Veiculo Cadastrado com Sucesso!");
         }
-        catch (DataIntegrityViolationException e){
-            return ResponseEntity.internalServerError()
-                    .body("Error: " + e.getCause().getCause().getMessage());
+        catch (RuntimeException e){
+            return ResponseEntity.internalServerError().body("Erro: " + e.getMessage());
         }
     }
 
-    @PutMapping("/{idVeiculo}")
-    public ResponseEntity<?> atualizar(
-            @PathVariable Long idVeiculo,
-            @RequestBody Veiculo veiculo
-    ) {
+    @PutMapping
+    public ResponseEntity<?> editar(@RequestParam("id") final Long id,
+                                    @Validated @RequestBody final Veiculo veiculo){
+        Veiculo veiculoBanco = veiculoService.findById(id);
+        veiculoBanco.setAno(veiculo.getAno());
+        veiculoBanco.setPlaca(veiculo.getPlaca());
+        veiculoBanco.setModelo(veiculo.getModelo());
+        veiculoBanco.setCor(veiculo.getCor());
+        veiculoBanco.setTipo(veiculo.getTipo());
+
         try {
-            this.veiculoService.atualizar(idVeiculo, veiculo);
-            return ResponseEntity.ok().body("Veiculo atualizado com sucesso!");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            this.veiculoService.atualizar(veiculoBanco);
+            return ResponseEntity.ok("Veiculo alterado com sucesso!");
+        } catch (RuntimeException e){
+            return ResponseEntity.internalServerError().body("Erro ao alterar veiculo!");
         }
     }
-
 
     @PutMapping("/desativar/{idVeiculo}")
     public ResponseEntity<?> desativar(
@@ -65,7 +80,7 @@ public class VeiculoController {
             this.veiculoService.desativar(idVeiculo);
             return ResponseEntity.ok().body("Veiculo desativado com sucesso!");
         }catch (RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Erro ao desativar!");
         }
     }
 
@@ -77,9 +92,7 @@ public class VeiculoController {
             this.veiculoService.ativar(idVeiculo);
             return ResponseEntity.ok().body("Veiculo ativado com sucesso!");
         }catch (RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Nenhum veiculo encontrado!");
         }
     }
-
 }
-
